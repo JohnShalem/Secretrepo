@@ -66,6 +66,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddMvcCore().AddDataAnnotationsLocalization();
 
 var app = builder.Build();
 

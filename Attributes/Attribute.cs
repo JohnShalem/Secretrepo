@@ -4,8 +4,8 @@ namespace WhatsAppAPI.Attributes
 {
     public class Attribute
     {
-        [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-        public class NoNumbersAttribute : ValidationAttribute
+        [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
+        public class NoNumbers : ValidationAttribute
         {
             public override bool IsValid(object value)
             {

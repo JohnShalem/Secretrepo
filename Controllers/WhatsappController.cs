@@ -21,12 +21,14 @@ namespace WhatsAppAPI.Controllers
         private readonly IWhatsAppService _whatsAppService;
         private readonly ICustomerResponses _customerResponses;
         private readonly IRegistrationService _registrationService;
+        private readonly IWhatsAppIntegrator _whatsAppIntegrator;
 
-        public WhatsappController(IWhatsAppService whatsAppService, ICustomerResponses customerResponses, IRegistrationService registrationService)
+        public WhatsappController(IWhatsAppService whatsAppService, ICustomerResponses customerResponses, IRegistrationService registrationService, IWhatsAppIntegrator whatsAppIntegrator)
         {
             _whatsAppService = whatsAppService;
             _customerResponses = customerResponses;
             _registrationService = registrationService;
+            _whatsAppIntegrator = whatsAppIntegrator;
         }
 
 
@@ -42,6 +44,8 @@ namespace WhatsAppAPI.Controllers
         [HttpGet("get-media")]
         public async Task<IActionResult> GetMediaByUrl()
         {
+            _whatsAppIntegrator.SaveCustomerData("Customer.FirstName","John",1);
+
             var result = _customerResponses.ProcessDocumentSaving("6588652664550900", "Sample");
             return Ok("got successfully");
         }

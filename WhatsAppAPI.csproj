@@ -25,11 +25,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Models\ValidationMessages\ErrorMsg.en.resx">
+    <Compile Update="Models\ValidationMessages\ErrorMsgEn.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ErrorMsgEn.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Models\ValidationMessages\ErrorMsgTe.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ErrorMsgTe.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Models\ValidationMessages\ErrorMsgEn.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ErrorMsgEn.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Models\ValidationMessages\ErrorMsg.te.resx">
+    <EmbeddedResource Update="Models\ValidationMessages\ErrorMsgTe.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ErrorMsgTe.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

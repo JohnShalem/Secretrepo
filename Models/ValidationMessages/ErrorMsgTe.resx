@@ -117,22 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AadharNumberRegex" xml:space="preserve">
+  <data name="AadharNumber" xml:space="preserve">
     <value>దయచేసి సరైన ఆధార్ నంబర్‌ని నమోదు చేయండి</value>
   </data>
-  <data name="DateOfBirthRegex" xml:space="preserve">
+  <data name="DateOfBirth" xml:space="preserve">
     <value>దయచేసి పుట్టిన తేదీని ఫార్మాట్‌లో నమోదు చేయండి (DD-MM-YYYY)</value>
   </data>
-  <data name="FirstNameNoNumbersRegex" xml:space="preserve">
+  <data name="FirstNameNoNumbers" xml:space="preserve">
     <value>మొదటి పేరు సంఖ్యలను కలిగి ఉండకూడదు</value>
   </data>
-  <data name="LastNameNoNumbersRegex" xml:space="preserve">
+  <data name="LastNameNoNumbers" xml:space="preserve">
     <value>చివరి పేరు సంఖ్యలను కలిగి ఉండకూడదు</value>
   </data>
-  <data name="PanNumberRegex" xml:space="preserve">
+  <data name="PanNumber" xml:space="preserve">
     <value>దయచేసి సరైన పాన్ నంబర్ నమోదు చేయండి</value>
   </data>
-  <data name="Required" xml:space="preserve">
+  <data name="RequiredAttribute" xml:space="preserve">
     <value>This Value Is Required</value>
   </data>
 </root>

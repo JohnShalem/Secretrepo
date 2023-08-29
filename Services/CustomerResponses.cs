@@ -25,6 +25,8 @@ using WhatsAppAPI.Repository;
 using WhatsAppAPI.ViewModels;
 using WhatsAppAPI.ViewModels.WebHook;
 using static WhatsAppAPI.Enums.Enumerations;
+using System.Resources;
+using WhatsAppAPI.Models.ValidationMessages;
 
 namespace WhatsAppAPI.Services
 {
@@ -55,7 +57,7 @@ namespace WhatsAppAPI.Services
             string response = await new System.IO.StreamReader(stream).ReadToEndAsync();
             try
             {
-               NotificationPayLoadVM notificationPayLoadVM = await ConvertResponseToModel(response);
+                NotificationPayLoadVM notificationPayLoadVM = await ConvertResponseToModel(response);
                 if (!IsStatusResponse(notificationPayLoadVM))
                 {
                     string phoneNumber = GetPhoneNumberFromResponse(notificationPayLoadVM);
@@ -72,7 +74,7 @@ namespace WhatsAppAPI.Services
             catch (Exception ex)
             {
                 throw ex;
-            }            
+            }
         }
 
         public async Task SaveAnswerAndSendNextMessage(NotificationPayLoadVM notificationPayLoadVM, int? customerId, string phoneNumber)
@@ -121,12 +123,12 @@ namespace WhatsAppAPI.Services
                     else
                     {
 
-                        SetResourceFileBasedOnLanguageCode();
+                        SaveUserAnswer(notificationPayLoadVM, customerId, ReplyTypes.TextReply);
+
                         var validationMessagesObject = ValidateAnswer(customerId, phoneNumber);
 
                         if (validationMessagesObject.IsSuccess)
                         {
-                            SaveUserAnswer(notificationPayLoadVM, customerId, ReplyTypes.TextReply);
                             SendNextMessage(customerId, phoneNumber, lastPromptId);
                         }
                         else
@@ -140,7 +142,7 @@ namespace WhatsAppAPI.Services
                         }
                     }
                 }
-                else if (userPrompt.PromptType == "Interactive" || replyType == ReplyTypes.ButtonReply && userPrompt.PromptType=="Message")
+                else if (userPrompt.PromptType == "Interactive" || replyType == ReplyTypes.ButtonReply && userPrompt.PromptType == "Message")
                 {
                     if (notificationPayLoadVM.Entry[0].Changes[0].Value.Messages[0].Interactive?.ButtonReply?.Id == null)
                     {
@@ -154,9 +156,9 @@ namespace WhatsAppAPI.Services
                         var buttonId = Convert.ToInt32(notificationPayLoadVM.Entry[0].Changes[0].Value.Messages[0].Interactive?.ButtonReply?.Id);
                         //last
                         UserPrompts? buttonuserPrompt = new UserPrompts();
-                        if (userPrompt.ReConfirmationPromptId!=null)
+                        if (userPrompt.ReConfirmationPromptId != null)
                         {
-                            buttonuserPrompt = _userPromptsRepository.GetChildPromptByParentPromptId(lastPromptId);                            
+                            buttonuserPrompt = _userPromptsRepository.GetChildPromptByParentPromptId(lastPromptId);
                             actionBasedOnButtonIdForUserPrompt = GetActionBasedOnButtonIdForPrompt(buttonId, buttonuserPrompt);
                             skipToPromptIdByButtonId = GetSkipToPromptIdByButtonId(buttonId, buttonuserPrompt);
                         }
@@ -166,17 +168,17 @@ namespace WhatsAppAPI.Services
                             actionBasedOnButtonIdForUserPrompt = GetActionBasedOnButtonIdForPrompt(buttonId, buttonuserPrompt);
                             skipToPromptIdByButtonId = GetSkipToPromptIdByButtonId(buttonId, buttonuserPrompt);
                         }
-                        
+
                         //based on action do the necessary operation
                         if (actionBasedOnButtonIdForUserPrompt == "SaveParentAndProceed")
                         {
 
-                    
-                           // var parentPromptId = _userPromptsRepository.GetParentPromptIdByChildPromptId(lastPromptId);
+
+                            // var parentPromptId = _userPromptsRepository.GetParentPromptIdByChildPromptId(lastPromptId);
                             var communicationid = _communicationRepository.GetLastCommunicationIdByUserPromptId(lastPromptId);
 
-                           // var parentPrompt = _userPromptsRepository.GetUserPromptByUserPromptId(parentPromptId);
-                         
+                            // var parentPrompt = _userPromptsRepository.GetUserPromptByUserPromptId(parentPromptId);
+
                             var userAnswer = _userAnswersRepository.GetUserAnswerByCommunicationId(communicationid);
 
                             //lastuseranswer and parentPrompt save 
@@ -184,13 +186,13 @@ namespace WhatsAppAPI.Services
                             SaveUserAnswer(notificationPayLoadVM, customerId, ReplyTypes.ButtonReply);
 
                             if (userPrompt.ReConfirmationPromptId != null)
-                            {                                
+                            {
                                 lastPromptId = _registrationService.GetNextPromptIdInFlow(lastPromptId, customerId);
                                 await _registrationService.SendPromptByUserPromptId(customerId, lastPromptId, phoneNumber, isReprompt: false);
                             }
                             else
                             {
-                            SendNextMessage(customerId, phoneNumber, lastPromptId);
+                                SendNextMessage(customerId, phoneNumber, lastPromptId);
                             }
                         }
                         else if (actionBasedOnButtonIdForUserPrompt == "SkipToNext")
@@ -241,9 +243,10 @@ namespace WhatsAppAPI.Services
                         }
                         else
                         {
-                            
+
                             SaveUserAnswer(notificationPayLoadVM, customerId, ReplyTypes.ListReply);
-                            //_whatsAppIntegrator.SaveCustomerData(userPrompt.FieldName,notificationPayLoadVM.Entry[0].Changes[0].Value.Messages[0].Interactive.ListReply.Title,customerId);
+
+                            _whatsAppIntegrator.SaveCustomerData(userPrompt.FieldName, notificationPayLoadVM.Entry[0].Changes[0].Value.Messages[0].Interactive.ListReply.Title, customerId);
                             SendNextMessage(customerId, phoneNumber, lastPromptId);
                         }
                     }
@@ -399,7 +402,12 @@ namespace WhatsAppAPI.Services
             {
                 string? fieldName = _userPromptsRepository.GetFieldNameByUserPromptId(userPromptsId);
                 string? userAnswer = _userAnswersRepository.GetUserAnswerByCommunicationId(communicationId);
-                validationMessagesObject.ValidationMessages = GetValidationMessagesForAnswer(fieldName, userAnswer);
+                string? langCode = _customerRepository.GetLanguageCodeById(customerId);
+                if (langCode == null)
+                {
+                    langCode = "en";
+                }
+                validationMessagesObject.ValidationMessages = GetValidationMessagesForAnswer(fieldName, userAnswer, langCode);
                 if (validationMessagesObject.ValidationMessages.Count() > 0)
                 {
                     validationMessagesObject.IsSuccess = false;
@@ -412,7 +420,7 @@ namespace WhatsAppAPI.Services
             return validationMessagesObject;
         }
 
-        public List<string> GetValidationMessagesForAnswer(string fieldName, string? userAnswer)
+        public List<string> GetValidationMessagesForAnswer(string fieldName, string? userAnswer, string? langCode)
         {
             string[] fieldParts = fieldName.Split('.');
 
@@ -420,7 +428,8 @@ namespace WhatsAppAPI.Services
             string propertyName = fieldParts[1];
             System.Type classType = System.Type.GetType("WhatsAppAPI.Models.Registration." + className);
 
-            System.Type resourceFileType = System.Type.GetType();
+            System.Type resourceFileTypeBasedOnLangCode = GetResourceFileBasedOnLanguageCode(langCode);
+
             List<string> validationMessages = new List<string>();
             if (classType != null)
             {
@@ -428,19 +437,22 @@ namespace WhatsAppAPI.Services
                 if (property != null)
                 {
                     object propertyValue = userAnswer;
+
                     ValidationAttribute[] validationAttributes = property.GetCustomAttributes<ValidationAttribute>(true).ToArray();
                     if (validationAttributes.Length > 0)
                     {
                         foreach (var attribute in validationAttributes)
                         {
-                            attribute.ErrorMessageResourceName = propertyName;
-                            attribute.ErrorMessageResourceType = classType;
-
                             bool isValid = attribute.IsValid(propertyValue);
                             if (!isValid)
                             {
-                                validationMessages.Add(attribute.ErrorMessage);
+                                //attribute.ErrorMessageResourceType = System.Type.GetType("WhatsAppAPI.Models.ValidationMessages." + "ErrorMsgEn");
+                                string errorMessageName = attribute.ErrorMessageResourceName;
+                                ResourceManager resourceManager = new ResourceManager(resourceFileTypeBasedOnLangCode);
 
+                                string errorMessage = resourceManager.GetString(errorMessageName);
+
+                                validationMessages.Add(errorMessage);
                             }
                         }
                     }
@@ -507,9 +519,9 @@ namespace WhatsAppAPI.Services
             bool isReprompt = false;
             if (lastPromptId == null)
             {
-                nextPromptId = _registrationService.GetNextPromptIdInFlow(lastPromptId, customerId);                    
+                nextPromptId = _registrationService.GetNextPromptIdInFlow(lastPromptId, customerId);
             }
-            else if(userPrompt != null)
+            else if (userPrompt != null)
             {
                 if (userPrompt.ReConfirmationPromptId != null)
                 {
@@ -571,16 +583,18 @@ namespace WhatsAppAPI.Services
 
         }
 
-        public void GetResourceFileBasedOnLanguageCode(string? langCode)
+        public System.Type GetResourceFileBasedOnLanguageCode(string? langCode)
         {
-            string resourceFile = "";
+            System.Type resourceFile = null;
             if (langCode == "en")
             {
-                resourceFile = ""
+                resourceFile = System.Type.GetType("WhatsAppAPI.Models.ValidationMessages." + "ErrorMsgEn");
             }
-            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("fr-FR");
-
-
+            else if (langCode == "te")
+            {
+                resourceFile = System.Type.GetType("WhatsAppAPI.Models.ValidationMessages." + "ErrorMsgTe");
+            }
+            return resourceFile;
         }
 
     }

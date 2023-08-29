@@ -14,8 +14,7 @@ namespace WhatsAppAPI.IServices
         int GetRandomFlowId();       
         bool IsStatusResponse(NotificationPayLoadVM notificationPayLoadVM);
         ReplyTypes GetCustomerReplyType(NotificationPayLoadVM notificationPayLoadVM);
-        ValidationMessagesObject ValidateAnswer(int? customerId, string? phoneNumber);                    
-        List<string> GetValidationMessagesForAnswer(string fieldName, string? userAnswer);        
+        ValidationMessagesObject ValidateAnswer(int? customerId, string? phoneNumber);                                  
         string ProcessValidationResult(ValidationMessagesObject validationMessagesObject);        
         void SaveUserAnswer(NotificationPayLoadVM notificationPayLoadVM, int? customerId, ReplyTypes? replyTypes);
         UserAnswers CreateUserAnswerObject(NotificationPayLoadVM notificationPayLoadVM, int? customerId, ReplyTypes? replyTypes);
@@ -25,5 +24,6 @@ namespace WhatsAppAPI.IServices
         Task<string> ProcessDocumentSaving(string mediaID, string fileName);
         int? GetSkipToPromptIdByButtonId(int? buttonId, UserPrompts? userPrompts);        
         Task ProcessCustomerResponse(Stream stream);
+        List<string> GetValidationMessagesForAnswer(string fieldName, string? userAnswer, string? langCode);
     }
 }
