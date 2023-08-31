@@ -5,15 +5,16 @@ using System.Reflection;
 using WhatsAppAPI.Data;
 using WhatsAppAPI.IServices;
 using WhatsAppAPI.Models.Registration;
+using WhatsAppAPI.Repository;
 
 namespace WhatsAppAPI.Services
 {
     public class WhatsAppIntegrator : IWhatsAppIntegrator
     {
-        private readonly RegistrationDbContext _context;
-        public WhatsAppIntegrator(RegistrationDbContext registrationDbContext)
+        private readonly CustomerRepository _customerRepository;
+        public WhatsAppIntegrator(CustomerRepository customerRepository)
         {
-            _context = registrationDbContext;
+            _customerRepository = customerRepository;
         }
         public void SaveCustomerData(string fieldName, string value,int? customerId)
         {
@@ -28,22 +29,24 @@ namespace WhatsAppAPI.Services
                 PropertyInfo propertyInfo = classType.GetProperty(propertyPath[1], BindingFlags.Public | BindingFlags.Instance);
                 var convertedvalue = Convert.ChangeType(value, propertyInfo.PropertyType);
 
-                Customer? customerObject = null;
-                CustomerContact? customerContactObject = null;
-
                 if (propertyPath[0] == "Customer")
                 {
-                    customerObject = _context.Customer.Where(x => x.CustomerId == customerId).FirstOrDefault();
-                    propertyInfo.SetValue(customerObject, convertedvalue);
-                    _context.Update(customerObject);
-                    _context.SaveChanges();
+                   // Customer? customer= _customerRepository.Find(s=>s.CustomerId== customerId).FirstOrDefault();
+                    
+                    //if (customer != null) 
+                    //{
+                    //     propertyInfo.SetValue(customer, convertedvalue);
+                    //    _customerRepository.Update(customer);
+                    //    _customerRepository.SaveChanges();
+                    //}
+                   
                 }
                 else if (propertyPath[0] == "CustomerContact")
                 {
-                    customerContactObject = _context.Customer.Where(x => x.CustomerId == customerId).FirstOrDefault().CustomerContact;
-                    propertyInfo.SetValue(customerContactObject, convertedvalue);
-                    _context.Update(customerContactObject);
-                    _context.SaveChanges();
+                    //CustomerContact? customerContactObject = _context.Customer.Where(x => x.CustomerId == customerId).FirstOrDefault().CustomerContact;
+                    //propertyInfo.SetValue(customerContactObject, convertedvalue);
+                    //_context.Update(customerContactObject);
+                    //_context.SaveChanges();
                 }               
             }
             catch (Exception ex)

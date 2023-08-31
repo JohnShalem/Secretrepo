@@ -275,7 +275,7 @@ namespace WhatsAppAPI.Services
             else
             {
                 string mediaType = promptText.MediaType??"text";
-                if (mediaType == null)
+                if (mediaType == "text")
                 {
                     interactiveButtonMessageObject.interactive.header.type = "text";
                     interactiveButtonMessageObject.interactive.header.text = "";
