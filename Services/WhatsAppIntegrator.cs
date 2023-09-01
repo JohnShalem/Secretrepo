@@ -31,15 +31,15 @@ namespace WhatsAppAPI.Services
 
                 if (propertyPath[0] == "Customer")
                 {
-                   // Customer? customer= _customerRepository.Find(s=>s.CustomerId== customerId).FirstOrDefault();
-                    
-                    //if (customer != null) 
-                    //{
-                    //     propertyInfo.SetValue(customer, convertedvalue);
-                    //    _customerRepository.Update(customer);
-                    //    _customerRepository.SaveChanges();
-                    //}
-                   
+                    Customer? customer= _customerRepository.Find(s=>s.CustomerId== customerId).FirstOrDefault();
+
+                    if (customer != null)
+                    {
+                        propertyInfo.SetValue(customer, convertedvalue);
+                        _customerRepository.Update(customer);
+                        _customerRepository.SaveChanges();
+                    }
+
                 }
                 else if (propertyPath[0] == "CustomerContact")
                 {

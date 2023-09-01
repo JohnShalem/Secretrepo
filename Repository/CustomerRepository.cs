@@ -102,5 +102,10 @@ namespace WhatsAppAPI.Repository
             return _context.Customer.Where(x => x.CustomerId == customerId).Select(x => x.LanguageCode).FirstOrDefault();
         }
 
+        public Customer GetCustomerByCustomerId(int? customerId)
+        {
+            return _context.Customer.Where(x => x.CustomerId == customerId).FirstOrDefault();
+        }
+
     }
 }

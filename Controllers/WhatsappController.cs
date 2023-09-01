@@ -44,7 +44,7 @@ namespace WhatsAppAPI.Controllers
         [HttpGet("get-media")]
         public async Task<IActionResult> GetMediaByUrl()
         {
-            _whatsAppIntegrator.SaveCustomerData("Customer.FirstName","John",1);
+            //_whatsAppIntegrator.SaveCustomerData("Customer.FirstName","John",1);
 
             var result = _customerResponses.ProcessDocumentSaving("6588652664550900", "Sample");
             return Ok("got successfully");

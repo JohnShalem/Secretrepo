@@ -259,7 +259,7 @@ namespace WhatsAppAPI.Services
                                     LangCode = "te";
                                 }
 
-                                //_whatsAppIntegrator.SaveCustomerData(userPrompt.FieldName, LangCode, customerId);
+                                _whatsAppIntegrator.SaveCustomerData(userPrompt.FieldName, LangCode, customerId);
                                 SendNextMessage(customerId, phoneNumber, lastPromptId);
 
                             }
@@ -328,6 +328,11 @@ namespace WhatsAppAPI.Services
                 return new Customer()
                 {
                     FlowId = flowId,
+                    FirstName = "",
+                    LastName = "",
+                    AadharNumber = "",
+                    DOB = "",
+                    PANNumber = "",                    
                     CustomerContact = new CustomerContact()
                     {
                         PrimaryPhone = phoneNumber
